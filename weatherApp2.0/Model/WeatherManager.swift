@@ -6,12 +6,25 @@
 //
 
 import UIKit
+import CoreLocation
+
+protocol WeatherManagerDelegate: AnyObject {
+    func didUpdateData(_ weatherManager: WeatherManager, weatherData: CurrentWeatherData)
+}
 
 struct WeatherManager {
     let weatherURL = "https://api.openweathermap.org/data/2.5/weather?appid=\(apiKey)&units=metric&"
     
+    var delegate: WeatherManagerDelegate?
+    
+    
     func fetchWeather(cityName: String){
-        let urlString = "\(weatherURL)q=\(cityName)"
+        guard let name = cityName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+        let urlString = "\(weatherURL)q=\(name)"
+        performRequest(with: urlString)
+    }
+    func fetchWeather(latitude: CLLocationDegrees, longitude: CLLocationDegrees){
+        let urlString = "\(weatherURL)&lat=\(latitude)&lon=\(longitude)"
         performRequest(with: urlString)
     }
     
@@ -27,13 +40,29 @@ struct WeatherManager {
                     return
                 } else
                 if let safeData = data {
-                    let dataString = String(data: safeData, encoding: .utf8)
-                    print(dataString)
+                    if let weather = self.parseJSON(safeData){
+                        self.delegate?.didUpdateData(self, weatherData: weather)
+                    }
+                    
                 }
                 
             })
+            // Start a task
             task.resume()
         }
     }
+    
+    func parseJSON(_ weatherData: Data) -> CurrentWeatherData? {
+        let decoder = JSONDecoder()
+        do {
+            let decodedData = try decoder.decode(WeatherData.self, from: weatherData)
+            let currentWeather = CurrentWeatherData(currentWeatherData: decodedData)
+            return currentWeather
+        } catch let error as NSError {
+            print(error.localizedDescription)
+            return nil
+        }
+    }
+    
     
 }
