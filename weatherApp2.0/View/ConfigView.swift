@@ -43,6 +43,7 @@ class ConfigView: UIView {
     let currentWeatherImage: UIImageView = {
         let weatherImage = UIImageView()
         weatherImage.image = UIImage(systemName: "sun.max")
+        weatherImage.contentMode = .scaleAspectFit
         weatherImage.tintColor = .label
         weatherImage.translatesAutoresizingMaskIntoConstraints = false
         return weatherImage
@@ -52,6 +53,8 @@ class ConfigView: UIView {
         let label = UILabel()
         label.textAlignment = .center
         label.textColor = .label
+        label.numberOfLines = 0
+        label.adjustsFontSizeToFitWidth = true
         label.text = "21"
         label.font = UIFont.systemFont(ofSize: 80, weight: .black)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +66,7 @@ class ConfigView: UIView {
         label.textAlignment = .center
         label.textColor = .label
         label.text = "°C"
-        label.font = UIFont.systemFont(ofSize: 90, weight: .light)
+        label.font = UIFont.systemFont(ofSize: 70, weight: .light)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -126,11 +129,12 @@ class ConfigView: UIView {
                                                        constant: Constants.trailingConstant),
             temperatureStack.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor,
                                                     multiplier: Constants.temperatureWidth),
-            temperatureStack.heightAnchor.constraint(equalTo: currentWeatherImage.heightAnchor),
+            temperatureStack.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor,
+                                                     multiplier: Constants.temperatureLabelHeight),
             cityNameLabel.topAnchor.constraint(equalTo: temperatureStack.bottomAnchor),
             cityNameLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
                                                     constant: Constants.trailingConstant),
-            cityNameLabel.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor,
+            cityNameLabel.widthAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.widthAnchor,
                                                  multiplier: Constants.cityLabelWidth),
             cityNameLabel.heightAnchor.constraint(equalToConstant: Constants.elementsHeight)
         ])
@@ -145,5 +149,6 @@ enum Constants {
     static let imageViewHeight: CGFloat = 0.2
     static let temperatureWidth: CGFloat = 0.5
     static let cityLabelWidth: CGFloat = 0.3
+    static let temperatureLabelHeight: CGFloat = 0.1
     static let elementsHeight: CGFloat = 40
 }
